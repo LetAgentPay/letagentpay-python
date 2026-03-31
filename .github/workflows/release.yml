@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    if: "startsWith(github.event.head_commit.message, 'sdk-release: v') || startsWith(github.event.head_commit.message, 'release: v')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract SDK version from pyproject.toml
+        id: version
+        run: |
+          SDK_VERSION=$(sed -n 's/^version = "\([^"]*\)"/\1/p' pyproject.toml)
+          if [ -z "$SDK_VERSION" ]; then
+            echo "Could not extract version from pyproject.toml"
+            exit 1
+          fi
+          echo "version=${SDK_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Check if release already exists
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Release v${{ steps.version.outputs.version }} already exists, skipping."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" \
+            --title "v${{ steps.version.outputs.version }}" \
+            --notes "Install: \`pip install letagentpay==${{ steps.version.outputs.version }}\`"
