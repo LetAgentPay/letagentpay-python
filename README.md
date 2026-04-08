@@ -58,6 +58,23 @@ export LETAGENTPAY_BASE_URL=https://api.letagentpay.com/api/v1/agent-api  # opti
 client = LetAgentPay()
 ```
 
+## Security Model
+
+LetAgentPay uses **server-side cooperative enforcement**. When your agent calls `request_purchase()`, the request is evaluated by the policy engine on the LetAgentPay server. The agent receives only the result (approved/denied/pending) and cannot:
+
+- Modify its own policies (the `agt_` token grants access only to the Agent API)
+- Override policy check results (they come from the server)
+- Approve its own pending requests (only a human can do that via the dashboard)
+
+This is a **cooperative model** — it protects against budget overruns, category violations, and scheduling mistakes by well-behaved agents. It does not sandbox a malicious agent that has direct access to payment APIs.
+
+### Best Practices
+
+- **Don't give your agent raw payment credentials** (Stripe keys, credit card numbers). LetAgentPay should be the only spending channel
+- Use `pending` + manual approval for high-value purchases
+- Set per-request limits as an additional barrier
+- Review the audit trail in the dashboard regularly
+
 ## Documentation
 
 - [Python SDK docs](https://letagentpay.com/developers)
