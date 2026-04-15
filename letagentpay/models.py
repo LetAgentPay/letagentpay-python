@@ -185,3 +185,70 @@ class RequestList:
             limit=data.get("limit", 20),
             offset=data.get("offset", 0),
         )
+
+
+# --- x402 models ---
+
+
+@dataclass
+class X402AuthorizeResult:
+    """Response from x402 authorize."""
+
+    authorized: bool
+    authorization_id: str | None = None
+    reason: str | None = None
+    expires_at: str | None = None
+    remaining_daily_budget: float | None = None
+    remaining_monthly_budget: float | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> X402AuthorizeResult:
+        return cls(
+            authorized=data["authorized"],
+            authorization_id=data.get("authorization_id"),
+            reason=data.get("reason"),
+            expires_at=data.get("expires_at"),
+            remaining_daily_budget=(
+                float(data["remaining_daily_budget"])
+                if data.get("remaining_daily_budget") is not None
+                else None
+            ),
+            remaining_monthly_budget=(
+                float(data["remaining_monthly_budget"])
+                if data.get("remaining_monthly_budget") is not None
+                else None
+            ),
+        )
+
+
+@dataclass
+class X402ReportResult:
+    """Response from x402 report."""
+
+    recorded: bool
+    transaction_id: str
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> X402ReportResult:
+        return cls(recorded=data["recorded"], transaction_id=data["transaction_id"])
+
+
+@dataclass
+class X402WalletInfo:
+    """Agent wallet information."""
+
+    wallet_address: str
+    chain: str
+    wallet_provider: str | None = None
+    is_active: bool = True
+    created_at: str | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> X402WalletInfo:
+        return cls(
+            wallet_address=data["wallet_address"],
+            chain=data["chain"],
+            wallet_provider=data.get("wallet_provider"),
+            is_active=data.get("is_active", True),
+            created_at=data.get("created_at"),
+        )

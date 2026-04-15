@@ -11,6 +11,9 @@ from letagentpay.models import (
     PurchaseResult,
     RequestList,
     RequestStatus,
+    X402AuthorizeResult,
+    X402ReportResult,
+    X402WalletInfo,
 )
 
 __all__ = [
@@ -26,5 +29,8 @@ __all__ = [
     "PurchaseResult",
     "RequestList",
     "RequestStatus",
+    "X402AuthorizeResult",
+    "X402ReportResult",
+    "X402WalletInfo",
 ]
-__version__ = "0.1.0"
+__version__ = "0.2.0"
