@@ -46,6 +46,38 @@ def call_openai(prompt: str) -> str:
 result = call_openai("Analyze this document")
 ```
 
+## x402 Crypto-Micropayments
+
+Authorize on-chain USDC payments via the x402 protocol. Same policy engine, same token — different payment rail.
+
+```python
+client = LetAgentPay(token="agt_xxx")
+
+# Agent receives HTTP 402 — ask LAP for authorization
+auth = client.x402.authorize(
+    amount_usd=0.05,
+    asset="USDC",
+    network="eip155:8453",       # Base mainnet
+    pay_to="0xMerchant...",
+    resource_url="https://api.example.com/data",
+)
+
+if auth.authorized:
+    # Sign tx with your own wallet, then report
+    client.x402.report(
+        authorization_id=auth.authorization_id,
+        tx_hash="0xabc123...",
+    )
+else:
+    print(f"Declined: {auth.reason}")
+
+# Check x402 budget and wallets
+budget = client.x402.budget()
+
+# Register wallet address (LAP never holds keys)
+client.x402.register_wallet("0x1234...", chain="base")
+```
+
 ## Environment Variables
 
 ```bash
