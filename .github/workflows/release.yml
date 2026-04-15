@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+    environment: pypi
 
     steps:
       - uses: actions/checkout@v4
@@ -47,3 +49,18 @@ jobs:
           gh release create "v${{ steps.version.outputs.version }}" \
             --title "v${{ steps.version.outputs.version }}" \
             --notes "Install: \`pip install letagentpay==${{ steps.version.outputs.version }}\`"
+
+      # Publish to PyPI (only on sdk-release commits)
+      - name: Setup Python
+        if: "startsWith(github.event.head_commit.message, 'sdk-release: v')"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build package
+        if: "startsWith(github.event.head_commit.message, 'sdk-release: v')"
+        run: pip install build && python -m build
+
+      - name: Publish to PyPI
+        if: "startsWith(github.event.head_commit.message, 'sdk-release: v')"
+        uses: pypa/gh-action-pypi-publish@release/v1
