@@ -33,4 +33,4 @@ __all__ = [
     "X402ReportResult",
     "X402WalletInfo",
 ]
-__version__ = "0.2.4"
+__version__ = "0.2.5"
